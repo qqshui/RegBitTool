@@ -7,9 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     init();
-    initSignalMap();
-    setRegExpValidator();
-    updateUI(0);
+
 }
 
 MainWindow::~MainWindow()
@@ -61,48 +59,20 @@ void MainWindow::init()
         buttonList[i]->setCheckable(true);
     }
 
+    initSignalMap();
+    setRegExpValidator();
+    regval = 0;
+    updateUI(regval);
+
 }
 
 void MainWindow::updateUI(int32_t value)
 {
-    //for bit button
-    for(int i=0;i<32;i++){
-        if((value >> i) & 0x1){
-            buttonList[i]->setChecked(true);
-            buttonList[i]->setText("1");
-        }else{
-            buttonList[i]->setChecked(false);
-            buttonList[i]->setText("0");
-        }
-    }
 
-    //for hex
-    char chBuf[8];
-    sprintf(chBuf,"%08x",value);
-    QString hex = QString::fromUtf8(chBuf);
-    ui->lineEdit_hex->setText(hex);
-
-    QString dec = QString::number( value );
-    ui->lineEdit_dec->setText(dec);
-
-    //for bin
-    QString bin = QString::number( value ,2);
-
-    //add prefix 0
-    int binlen = bin.length();
-    for(int i=0;i < 32-binlen;i++){
-        bin.insert(0,"0");
-    }
-    //add space per 4 bit
-    QString formatbin ;
-    for(int i=0;i < 32;i+=4){
-        formatbin.append( bin.mid(i,4) );
-        formatbin.append(" ");
-    }
-    formatbin = formatbin.trimmed();
-    ui->lineEdit_bin->setText(formatbin);
-
-
+    updateBitButton(value);
+    updateHexLineEdit(value);
+    updateDecLineEdit(value);
+    updateBinLineEdit(value);
 }
 
 void MainWindow::updateBitButton(int32_t value)
@@ -191,7 +161,7 @@ void MainWindow::initSignalMap()
 void MainWindow::clickButton(int id){
 
     if(buttonList[id]->isChecked()){
-        regval |= 1 << id;
+        regval |= (1 << id);
     }else{
         regval &= ~(1 << id);
     }
