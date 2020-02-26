@@ -45,6 +45,7 @@ private:
     QRegExpValidator *binNumRegExpValidator;
     QRegExpValidator *decNumRegExpValidator;
     void setRegExpValidator();
+    bool regvalChangeLocked;
 
 };
 

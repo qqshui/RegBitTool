@@ -62,6 +62,7 @@ void MainWindow::init()
     initSignalMap();
     setRegExpValidator();
     regval = 0;
+    regvalChangeLocked = false;
     updateUI(regval);
 
 }
@@ -135,15 +136,17 @@ void MainWindow::updateBinLineEdit(int32_t value)
 
 void MainWindow::on_lineEdit_hex_textChanged(const QString &)
 {
-    if(! ui->lineEdit_hex->hasFocus()){
+    if(regvalChangeLocked){
         return;
     }
     bool ok;
     uint uintRegVal = ui->lineEdit_hex->text().toUInt(&ok,16);
     regval = uintRegVal;
+    regvalChangeLocked = true;
     updateDecLineEdit(regval);
     updateBinLineEdit(regval);
     updateBitButton(regval);
+    regvalChangeLocked = false;
 }
 
 void MainWindow::initSignalMap()
@@ -160,15 +163,19 @@ void MainWindow::initSignalMap()
 
 void MainWindow::clickButton(int id){
 
+    int32_t bitmask = 1;
+
     if(buttonList[id]->isChecked()){
-        regval |= (1 << id);
+        regval |= (bitmask << id);
     }else{
-        regval &= ~(1 << id);
+        regval &= ~(bitmask << id);
     }
+    regvalChangeLocked = true;
     updateBitButton(regval);
     updateHexLineEdit(regval);
     updateDecLineEdit(regval);
     updateBinLineEdit(regval);
+    regvalChangeLocked = false;
 }
 void MainWindow::setRegExpValidator(){
     QRegExp regExp("[a-fA-F0-9]{8}");
@@ -189,7 +196,7 @@ void MainWindow::setRegExpValidator(){
 
 void MainWindow::on_lineEdit_bin_textChanged(const QString &)
 {
-    if(! ui->lineEdit_bin->hasFocus()){
+    if(regvalChangeLocked){
         return;
     }
     QString formatBin = ui->lineEdit_bin->text();
@@ -202,14 +209,16 @@ void MainWindow::on_lineEdit_bin_textChanged(const QString &)
     bool ok;
     regval = bin.toUInt(&ok,2);
 
+    regvalChangeLocked = true;
     updateBitButton(regval);
     updateHexLineEdit(regval);
     updateDecLineEdit(regval);
+    regvalChangeLocked = false;
 }
 
 void MainWindow::on_lineEdit_dec_textChanged(const QString &)
 {
-    if(! ui->lineEdit_dec->hasFocus()){
+    if(regvalChangeLocked){
         return;
     }
     QString dec = ui->lineEdit_dec->text();
@@ -217,7 +226,9 @@ void MainWindow::on_lineEdit_dec_textChanged(const QString &)
     bool ok;
     regval = dec.toUInt(&ok,10);
 
+    regvalChangeLocked = true;
     updateBitButton(regval);
     updateHexLineEdit(regval);
     updateBinLineEdit(regval);
+    regvalChangeLocked = false;
 }
